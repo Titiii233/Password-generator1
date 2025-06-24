@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Générateur de mot de passe ANSSI</title>
+  <style>
+    body {
+      background-color: #ffe4ec;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 3rem;
+    }
+    .container {
+      display: inline-block;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 400px;
+    }
+    .icon {
+      width: 100px;
+      margin-bottom: 1rem;
+    }
+    button {
+      background-color: #f48fb1;
+      color: white;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    button:hover {
+      background-color: #ec407a;
+    }
+    input[type="text"] {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 10px;
+      font-size: 1rem;
+      text-align: center;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://i.imgur.com/VhD2mFn.png" alt="Lapin hotline" class="icon" />
+    <h1>🔐 Générateur ANSSI</h1>
+    <button id="generate">🎀 Générer</button>
+    <input type="text" id="result" readonly placeholder="Votre mot de passe" />
+  </div>
+
+  <script>
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(window.crypto.getRandomValues(new Uint32Array(1))[0] / (0xFFFFFFFF + 1) * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function generatePassword() {
+      const length = 16;
+      const lower = "abcdefghijklmnopqrstuvwxyz";
+      const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const digits = "0123456789";
+      const specials = "!@#$%^&*()-_=+[]{};:,.?/";
+      const allChars = lower + upper + digits + specials;
+
+      const array = new Uint32Array(length);
+      window.crypto.getRandomValues(array);
+
+      // On met au moins un de chaque type
+      let passwordChars = [];
+      passwordChars.push(lower.charAt(array[0] % lower.length));
+      passwordChars.push(upper.charAt(array[1] % upper.length));
+      passwordChars.push(digits.charAt(array[2] % digits.length));
+      passwordChars.push(specials.charAt(array[3] % specials.length));
+
+      // Remplir le reste avec des caractères aléatoires de tous types
+      for (let i = 4; i < length; i++) {
+        passwordChars.push(allChars.charAt(array[i] % allChars.length));
+      }
+
+      // Mélanger le tableau pour ne pas avoir les types groupés
+      passwordChars = shuffleArray(passwordChars);
+
+      return passwordChars.join("");
+    }
+
+    document.getElementById("generate").addEventListener("click", () => {
+      const pwd = generatePassword();
+      document.getElementById("result").value = pwd;
+    });
+  </script>
+</body>
+</html>
